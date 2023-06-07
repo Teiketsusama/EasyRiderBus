@@ -1,12 +1,9 @@
 """
-Stage 2/6: Correct syntax
+Stage 3/6: Bus line info
 Objectives:
 The string containing the data in JSON format is passed to standard input.
-Check that the data format complies with the documentation.
-Only the fields that have such a requirement are relevant, i.e. stop_name, stop_type, a_time,
-so, please, count errors only for them.
-Like in the previous stage, print the information about the number of found errors in total and in each field.
-Remember that there might be no errors at all.
+Find the names of all the bus lines.
+Verify the number of stops for each line.
 The output should have the same formatting as shown in the example.
 """
 
@@ -37,14 +34,15 @@ class EasyRiderDataChecker:
                     self.errors[key] += 1
 
 
+def bus_line_info(data: list):
+    print("Line names and number of stops:")
+    bus_ids = set(bus["bus_id"] for bus in data)
+    for bus_id in bus_ids:
+        print(f"bus_id: {bus_id}, stops: {sum(bus['bus_id'] == bus_id for bus in data)}")
+
+
 def main():
-    data = input()
-    checker = EasyRiderDataChecker(data)
-    checker.check_data()
-    print(f"Format validation: {sum(checker.errors.values())} errors")
-    for key, value in checker.errors.items():
-        if key in ("stop_name", "stop_type", "a_time"):
-            print(f"{key}: {value}")
+    bus_line_info(EasyRiderDataChecker(input()).data)
 
 
 if __name__ == '__main__':
