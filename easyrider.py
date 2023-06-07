@@ -1,14 +1,12 @@
 """
-Stage 4/6: Special stops
+Stage 5/6: Unlost in time
 Objectives:
 The string containing the data in JSON format is passed to standard input.
-Make sure each bus line has exactly one starting point (S) and one final stop (F).
-If a bus line does not meet this condition, stop checking and print a message about it.
-Do not continue checking the other bus lines.
-If all bus lines meet the condition, count how many starting points and final stops there are.
-Print their unique names in alphabetical order.
-Count the transfer stops and print their unique names in alphabetical order.
-A transfer stop is a stop shared by at least two bus lines.
+Check that the arrival time for the upcoming stops for a given bus line is increasing.
+If the arrival time for the next stop is earlier than or equal to the time of the current stop, stop checking
+that bus line and remember the name of the incorrect stop.
+Display the information for those bus lines that have time anomalies. For the correct stops, do not display anything.
+If all the lines are correct timewise, print OK.
 The output should have the same formatting as shown in the example.
 """
 
@@ -60,11 +58,30 @@ class EasyRiderDataChecker:
         print(f"Transfer stops: {len(transfer_stops)} {sorted(list(transfer_stops))}")
         print(f"Finish stops: {len(final_stops)} {sorted(list(final_stops))}")
 
+    def arrival_time_info(self):
+        print("Arrival time test:")
+        bus_lines = set(bus["bus_id"] for bus in self.data)
+        wrong_time_stops = {}
+        for bus_line in bus_lines:
+            stops = [bus for bus in self.data if bus["bus_id"] == bus_line]
+            for i in range(len(stops) - 1):
+                current_stop = stops[i]
+                next_stop = stops[i + 1]
+                if next_stop["a_time"] <= current_stop["a_time"]:
+                    wrong_time_stops[bus_line] = next_stop["stop_name"]
+                    break
+
+        if wrong_time_stops.values():
+            for bus_line, stop_name in wrong_time_stops.items():
+                print(f"bus_id line {bus_line}: wrong time on station {stop_name}")
+        else:
+            print("OK")
+
 
 def main():
     data = input()
     checker = EasyRiderDataChecker(data)
-    checker.special_stop_info()
+    checker.arrival_time_info()
 
 
 if __name__ == '__main__':
