@@ -1,9 +1,14 @@
 """
-Stage 3/6: Bus line info
+Stage 4/6: Special stops
 Objectives:
 The string containing the data in JSON format is passed to standard input.
-Find the names of all the bus lines.
-Verify the number of stops for each line.
+Make sure each bus line has exactly one starting point (S) and one final stop (F).
+If a bus line does not meet this condition, stop checking and print a message about it.
+Do not continue checking the other bus lines.
+If all bus lines meet the condition, count how many starting points and final stops there are.
+Print their unique names in alphabetical order.
+Count the transfer stops and print their unique names in alphabetical order.
+A transfer stop is a stop shared by at least two bus lines.
 The output should have the same formatting as shown in the example.
 """
 
@@ -33,16 +38,33 @@ class EasyRiderDataChecker:
                         not fullmatch(self.data_structure[key]["format"], str(value)):
                     self.errors[key] += 1
 
+    def bus_line_info(self):
+        print("Line names and number of stops:")
+        bus_lines = set(bus["bus_id"] for bus in self.data)
+        for bus_line in bus_lines:
+            print(f"bus_id: {bus_line}, stops: {sum(bus['bus_id'] == bus_line for bus in self.data)}")
 
-def bus_line_info(data: list):
-    print("Line names and number of stops:")
-    bus_ids = set(bus["bus_id"] for bus in data)
-    for bus_id in bus_ids:
-        print(f"bus_id: {bus_id}, stops: {sum(bus['bus_id'] == bus_id for bus in data)}")
+    def special_stop_info(self):
+        bus_lines = set(bus["bus_id"] for bus in self.data)
+        for bus_line in bus_lines:
+            stop_types = [bus["stop_type"] for bus in self.data if bus["bus_id"] == bus_line]
+            if stop_types.count("S") != 1 or stop_types.count("F") != 1:
+                print(f"There is no start or end stop for the line: {bus_line}.")
+                return
+
+        start_stops = set(bus["stop_name"] for bus in self.data if bus["stop_type"] == "S")
+        final_stops = set(bus["stop_name"] for bus in self.data if bus["stop_type"] == "F")
+        stop_names = [bus["stop_name"] for bus in self.data]
+        transfer_stops = set(stop_name for stop_name in stop_names if stop_names.count(stop_name) > 1)
+        print(f"Start stops: {len(start_stops)} {sorted(list(start_stops))}")
+        print(f"Transfer stops: {len(transfer_stops)} {sorted(list(transfer_stops))}")
+        print(f"Finish stops: {len(final_stops)} {sorted(list(final_stops))}")
 
 
 def main():
-    bus_line_info(EasyRiderDataChecker(input()).data)
+    data = input()
+    checker = EasyRiderDataChecker(data)
+    checker.special_stop_info()
 
 
 if __name__ == '__main__':
