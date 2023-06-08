@@ -1,15 +1,3 @@
-"""
-Stage 5/6: Unlost in time
-Objectives:
-The string containing the data in JSON format is passed to standard input.
-Check that the arrival time for the upcoming stops for a given bus line is increasing.
-If the arrival time for the next stop is earlier than or equal to the time of the current stop, stop checking
-that bus line and remember the name of the incorrect stop.
-Display the information for those bus lines that have time anomalies. For the correct stops, do not display anything.
-If all the lines are correct timewise, print OK.
-The output should have the same formatting as shown in the example.
-"""
-
 from json import loads
 from re import fullmatch
 
@@ -77,11 +65,26 @@ class EasyRiderDataChecker:
         else:
             print("OK")
 
+    def on_demand_stops(self):
+        start_stops = set(bus["stop_name"] for bus in self.data if bus["stop_type"] == "S")
+        final_stops = set(bus["stop_name"] for bus in self.data if bus["stop_type"] == "F")
+        stop_names = [bus["stop_name"] for bus in self.data]
+        transfer_stops = set(stop_name for stop_name in stop_names if stop_names.count(stop_name) > 1)
+        print("On demand stops test:")
+        on_demand_stops = [bus["stop_name"] for bus in self.data if bus["stop_type"] == "O"]
+        if on_demand_stops:
+            wrong_stops = [stop for stop in on_demand_stops
+                           if stop in start_stops or stop in final_stops or stop in transfer_stops]
+            if wrong_stops:
+                print(f"Wrong stop type: {sorted(wrong_stops)}")
+            else:
+                print("OK")
+
 
 def main():
     data = input()
     checker = EasyRiderDataChecker(data)
-    checker.arrival_time_info()
+    checker.on_demand_stops()
 
 
 if __name__ == '__main__':
